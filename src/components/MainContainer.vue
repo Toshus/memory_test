@@ -26,15 +26,21 @@ export default {
 
   mounted () {
     this.$root.$on('start-game', () => {
-      console.log('start-game catched')
       this.startGame()
+    })
+    this.$root.$on('finish-game', (scores) => {
+      this.finishGame(scores)
     })
   },
 
   methods: {
     startGame () {
       this.currentView = GameScreen
-      this.$root.$emit('reset-game', true)
+    },
+    finishGame (scores) {
+      this.currentView = EndScreen
+      // небольшой хак, чтобы успел установиться обработчик события
+      window.setTimeout(() => { this.$root.$emit('game-scores', scores) }, 0)
     }
   }
 }

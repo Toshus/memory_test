@@ -1,6 +1,6 @@
 <template>
   <div class="start-wrapper">
-    <img src="../assets/c08.png" alt="">
+    <img src="/static/img/c08.png" alt="">
     <h1>Игра "Memory"</h1>
     <button class="start-wrapper__button" @click="startGame">
       Начать игру!
@@ -9,6 +9,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'StartScreen',
   methods: {

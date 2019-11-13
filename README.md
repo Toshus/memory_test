@@ -1,8 +1,8 @@
-# memory_test
+# Игра Memory
 
 > тестовое задание
 
-## Build Setup
+## Развертывание приложения
 
 ``` bash
 # install dependencies
@@ -27,4 +27,7 @@ npm run e2e
 npm test
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+## Возможности для расширения
+1. Добавить таймер, ограничивающий общее время игры
+2. Добавить уровни сложности, заключающиеся в разном количестве пар карточек (добавить еще один массив с типами карт и при инициализации игры из него наполнять игровой массив, необходим будет метод клонирования элементов массива)
+

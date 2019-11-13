@@ -13,7 +13,7 @@
         <div class="front" :style="{ backgroundImage: 'url(' + card.image + ')' }"></div>
       </div>
     </div>
-    <button @click="shuffleCards">Shuffle</button>
+    <button class="game-wrapper__button" @click="finishGame">Завершить игру</button>
   </div>
 </template>
 
@@ -28,6 +28,7 @@ export default {
   data () {
     return {
       scores: 0,
+      flippedCards: [null, null],
       cards: [
         { name: 'c01', image: '/static/img/c01.png', flipped: false, found: false },
         { name: 'c02', image: '/static/img/c02.png', flipped: false, found: false },
@@ -50,17 +51,87 @@ export default {
       ]
     }
   },
+
   methods: {
     startGame () {
       this.shuffleCards()
+      // тут добавить старт таймера
     },
+
     flipCard (card) {
+      if (card.flipped || !this.canFlipCard()) {
+        return false
+      }
       card.flipped = true
-      this.scores++
+      if (this.flippedCards[0] !== null) {
+        this.flippedCards[1] = card
+        this.checkTurn()
+      } else {
+        this.flippedCards[0] = card
+      }
       return true
     },
+
+    checkTurn () {
+      if (this.flippedCards[0].name === this.flippedCards[1].name) {
+        this.calcScore(true)
+        window.setTimeout(() => {
+          this.flippedCards[0].found = true
+          this.flippedCards[1].found = true
+          this.clearFlippedCards()
+        }, 500)
+      } else {
+        this.calcScore(false)
+        window.setTimeout(() => {
+          this.flippedCards[0].flipped = false
+          this.flippedCards[1].flipped = false
+          this.clearFlippedCards()
+        }, 1000)
+      }
+    },
+
+    calcScore (isFound) {
+      let turnScore = 0
+      let finished = false
+      if (isFound) {
+        for (let i = 0; i < this.cards.length; i++) {
+          if (!this.cards[i].flipped && !this.cards[i].found) {
+            turnScore++
+          }
+        }
+        finished = (turnScore === 0)
+        turnScore = turnScore / 2
+      } else {
+        for (let i = 0; i < this.cards.length; i++) {
+          if (this.cards[i].found) {
+            turnScore++
+          }
+        }
+        turnScore = -1 * turnScore / 2
+      }
+      if (this.scores + turnScore < 0) {
+        this.scores = 0
+      } else {
+        this.scores += turnScore
+      }
+      if (finished) {
+        window.setTimeout(() => {
+          this.finishGame()
+        }, 600)
+      }
+    },
+
+    clearFlippedCards () {
+      this.flippedCards[0] = null
+      this.flippedCards[1] = null
+    },
+
+    canFlipCard () {
+      return this.flippedCards[0] === null || this.flippedCards[1] === null
+    },
+
     shuffleCards () {
-      console.log('shuffling... ')
+      this.closeAll()
       let j, temp
       for (let i = this.cards.length - 1; i > 0; i--) {
         j = Math.floor(Math.random() * (i + 1))
@@ -68,15 +139,40 @@ export default {
         this.cards[j] = this.cards[i]
         this.cards[i] = temp
       }
-      console.log(this.cards)
       this.$forceUpdate()
+    },
+
+    showAll () {
+      for (let i = 0; i < this.cards.length; i++) {
+        this.cards[i].flipped = true
+      }
+    },
+
+    closeAll () {
+      for (let i = 0; i < this.cards.length; i++) {
+        if (!this.cards[i].found) {
+          this.cards[i].flipped = false
+        }
+      }
+    },
+
+    finishGame () {
+      this.$root.$emit('finish-game', this.scores)
+    },
+
+    /* Расширение игры: таймер, ограничивающий время открытия всех карточек
+    *  Настроить тут таймеры, обновляющие отображаемое оставшееся время раз в секунду и
+    *  завершающие игру по истечении времени
+    */
+    startTimer () {
+      return true
     }
   },
+
   mounted () {
-    this.$root.$on('reset-game', () => {
-      console.log('reset-game catched')
-      this.startGame()
-    })
+    this.startGame()
+    window.setTimeout(() => { this.showAll() }, 300)
+    window.setTimeout(() => { this.closeAll() }, 5300)
   }
 }
 </script>
@@ -84,7 +180,7 @@ export default {
 <style scoped>
   .cards {
     max-width: 872px;
-    margin: 0 auto;
+    margin: 0 auto 4em;
   }
   .card {
     position: relative;
@@ -127,5 +223,20 @@ export default {
 
   .flipped .front, .found .front {
     transform: rotateY(0deg);
+  }
+
+  .found {
+    visibility: hidden;
+  }
+
+  .game-wrapper__button {
+    display: inline-block;
+    border-radius: 1.1em;
+    background-color: deepskyblue;
+    font-size: x-large;
+    color: white;
+    padding: .5em 3em;
+    border: none;
+    cursor: pointer;
   }
 </style>
