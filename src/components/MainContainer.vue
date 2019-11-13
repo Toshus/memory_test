@@ -1,6 +1,6 @@
 <template>
   <div class="content">
-    <component :is="currentView"></component>
+    <component :is="currentView" ref="comp"></component>
   </div>
 </template>
 
@@ -26,6 +26,7 @@ export default {
 
   mounted () {
     this.$root.$on('start-game', () => {
+      console.log('start-game catched')
       this.startGame()
     })
   },
@@ -33,6 +34,7 @@ export default {
   methods: {
     startGame () {
       this.currentView = GameScreen
+      this.$root.$emit('reset-game', true)
     }
   }
 }
