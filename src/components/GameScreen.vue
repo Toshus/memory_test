@@ -13,6 +13,7 @@
         <div class="front" :style="{ backgroundImage: 'url(' + card.image + ')' }"></div>
       </div>
     </div>
+    <button @click="shuffleCards">Shuffle</button>
   </div>
 </template>
 
@@ -52,11 +53,6 @@ export default {
   methods: {
     startGame () {
       this.shuffleCards()
-
-      for (let i = 0; i < this.cards.length; i++) {
-        this.cards[i].flipped = true
-        this.cards[i].found = false
-      }
     },
     flipCard (card) {
       card.flipped = true
@@ -73,6 +69,7 @@ export default {
         this.cards[i] = temp
       }
       console.log(this.cards)
+      this.$forceUpdate()
     }
   },
   mounted () {
